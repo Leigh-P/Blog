@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>My Blog</title>
+    <link rel="stylesheet" href="styles/style.css">
+</head>
+
+<body>
+    <header>
+        <div class="header">
+            <h1 class="blogname">Peppa</h1>
+            <nav id="nav-top">
+                <a href="">功能</a>
+                <ul class="function">
+                    <li>
+                        <a href="">写文章</a>
+                    </li>
+                    <li>
+                        <a href="">关于作者</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <div class="content">
+        <section class="art-container">
+            <h2 class="year">2018</h2>
+            <div class="article">
+                <span class="article-time">April 24th</span>
+                <span class="article-title">
+                    <a href="" class="article-link">搭建blog</a>
+                </span>
+            </div>
+            <div class="article">
+                <span class="article-time">April 24th</span>
+                <span class="article-title">
+                    <a href="" class="article-link">搭建blog</a>
+                </span>
+            </div>
+        </section>
+    </div>
+    <script>
+        // 下拉分隔栏
+        function rollDisplay(targetId, displayClass) {
+            let displayEl = document.getElementsByClassName(displayClass)[0];
+            let targetEl = document.getElementById(targetId);
+            targetEl.addEventListener("mouseenter", function () {
+                displayEl.setAttribute("style", "display:inline");
+            });
+            targetEl.addEventListener("mouseleave", function () {
+                displayEl.setAttribute("style", "display:none");
+            })
+        }
+        rollDisplay("nav-top", "function", "click");
+    </script>
+</body>
+
+</html>
