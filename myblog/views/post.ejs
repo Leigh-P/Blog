@@ -1,0 +1,14 @@
+<%- include header %>
+<form enctype="multipart/form-data" method="post">
+    <div class="form-group">
+        <label for="name">标题：</label>
+        <input type="text" class="form-control" name="title" placeholder="输入标题">
+    </div>
+    <div class="form-group">
+        <label for="name">文章</label>
+        <textarea name="article" class="form-control" rows="8"></textarea>
+    </div>
+    <hr/>
+    <input type="hidden" name="pv" value="0">
+    <input type="submit" value="发表" class="btn btn-default">
+</form>
