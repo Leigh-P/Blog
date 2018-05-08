@@ -14,7 +14,7 @@ module.exports = function(app) {
         res.render('index', {
             title: '首页',
         });
-    })
+    });
     // 注册界面
     app.get('/reg', function (req, res, next) {
     	res.render('reg', {
