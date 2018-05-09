@@ -21,6 +21,39 @@ module.exports = function(app) {
     		title: '注册',
         }); 
     })
+
+    app.post('/reg', function (req, res) {
+        var user = new User({
+            username: req.body.username,
+            password:password,
+            email:req.body.email
+        });
+        if(req.body['password'] != req.body['password-repeat']) {
+            console.log('两次输入的密码不一致');
+            return res.redirect('/reg');
+        }
+    
+        User.findOne({'username':user.username}, function (err, data) {
+            if (err) {
+                req.flash("err", err);
+                return res.redirect('/');
+            }
+            if (data != null) {
+                console.log('该用户已存在');
+                return res.redirect('/reg')
+            } else {
+                user.save(function (err) {
+                    if (err) {
+                        console.log(err);
+                        return res.redirect('/');
+                    }
+                    console.log('注册用户成功');
+                    res.redirect('/');
+                })
+            }
+        })
+    })
+
     // 登录
     app.get('/login', function (req, res) {
     	res.render('login', {
@@ -34,42 +67,3 @@ module.exports = function(app) {
     	})
     })
 }
-
-
-app.get('reg', function (req, res) {
-    res.render('req', {
-        title: '注册'
-    });
-});
-
-app.post('/req', function (req, res) {
-    var user = new User({
-        username: req.body.username,
-        password:password,
-        email:req.body.email
-    });
-    if(req.body['password'] != req.body['password-repeat']) {
-        console.log('两次输入的密码不一致');
-        return res.redirect('/reg');
-    }
-
-    User.findOne({'username':user.username}, function (err, data) {
-        if (err) {
-            req.flash("err", err);
-            return res.redirect('/');
-        }
-        if (data != null) {
-            console.log('该用户已存在');
-            return res.redirect('/reg')
-        } else {
-            user.save(function (err) {
-                if (err) {
-                    console.log(err);
-                    return res.redirect('/');
-                }
-                console.log('注册用户成功');
-                res.redirect('/');
-            })
-        }
-    })
-})
