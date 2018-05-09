@@ -5,6 +5,11 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var routes = require('./routes/index');
+var session = require('express-session');
+// 创建 mongo 和 session 会话机制
+var MongoStore = require('connect-mongo')(session);
+var mongdb = require('./config/mongoose');
+mongdb()
 
 var app = express();
 
@@ -17,6 +22,16 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+// session 中间件
+app.use(session({
+    name: simpleBlog, // 设置 cookie 中 保存 session id 的字段名称
+    secret: simpleBlog, // 通过设置 secret 来计算 hash 值并放在 cookie 中，使产生的signedCookie 防篡改
+    cookie: {maxAge: 6000000},  // 过期时间，过期后 cookie 中的 session id 自动删除
+    store: new MongoStore({url:'mongodb://localhost/simpleBlog'}),  // 将 session 储存到 mongdb 中
+    resave: false,
+    saveUninitialized: true  
+}))
 
 // 设置静态文件目录
 app.use(express.static(path.join(__dirname, 'public')));

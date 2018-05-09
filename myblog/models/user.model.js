@@ -8,5 +8,6 @@ var UserSchema = new mongoose.Schema({
     email: String
 })
 
+// 数据库创建 users 集合
 var User = mongoose.model('User', UserSchema);
 module.exports = User;
