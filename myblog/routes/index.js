@@ -6,35 +6,48 @@ var moment = require('moment');
 var formidable = require('formidable');
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
+router.get('/', function (req, res, next) {
     res.render('index', { title: 'Express' });
 });
 
-module.exports = function(app) {
-	// 首页
-    app.get('/', function(req, res,next) {
-        res.render('index', {
-            title: '首页',
+module.exports = function (app) {
+    // 首页
+    app.get('/', function (req, res, next) {
+        Post.find({}, function (err, data) {
+            if (err) {
+                // console.log(err);
+                req.flash('error', '查找错误');
+                return res.redirect('/');
+            }
+            res.render('index', {
+                title: '首页',
+                user: req.session.user,
+                success: req.flash('success').toString(),
+                error: req.flash('error').toString(),
+                posts: data,
+                time: moment(new Date()).format('YYYY-MM-DD HH:mm:ss'),
+            });
         });
-    });
+    })
+
     // 注册界面
     app.get('/reg', function (req, res) {
-    	res.render('reg', {
-    		title: '注册',
-        }); 
+        res.render('reg', {
+            title: '注册',
+        });
     })
     app.post('/reg', function (req, res) {
         var user = new User({
             username: req.body.username,
-            password:password,
-            email:req.body.email
+            password: password,
+            email: req.body.email
         });
-        if(req.body['password'] != req.body['password-repeat']) {
+        if (req.body['password'] != req.body['password-repeat']) {
             console.log('两次输入的密码不一致');
             return res.redirect('/reg');
         }
-    
-        User.findOne({'username':user.username}, function (err, data) {
+
+        User.findOne({ 'username': user.username }, function (err, data) {
             if (err) {
                 req.flash("err", err);
                 return res.redirect('/');
@@ -55,17 +68,17 @@ module.exports = function(app) {
         })
     })
     // 登录
-    app.get('/login', checkNoLogin,function (req, res) {
-    	res.render('login', {
-    		title: '登录',
-    	});
+    app.get('/login', checkNoLogin, function (req, res) {
+        res.render('login', {
+            title: '登录',
+        });
     })
     app.post('/login', function (req, res) {
         var password = req.body.password;
         // 检查用户是否存在
-        User.findOne({'username':req.body.username}, function(err, user) {
+        User.findOne({ 'username': req.body.username }, function (err, user) {
             if (err) {
-                console.log('error','登录出错');
+                console.log('error', '登录出错');
                 req.flash('error', '登录出错')
                 return res.redirect('/')
             }
@@ -74,7 +87,7 @@ module.exports = function(app) {
                 req.flash('error', '用户不存在')
                 return res.redirect('/login')
             }
-    
+
             if (user.username != password) {
                 console.log('error', '密码错误');
                 req.flash('error', '密码错误')
@@ -89,12 +102,12 @@ module.exports = function(app) {
     })
     // 发表文章
     app.get('/post', checkLogin, function (req, res) {
-    	res.render ('post', {
+        res.render('post', {
             title: '发表',
             user: req.session.user,
             success: req.flash('success').toString(),
             error: req.flash('error').toString()
-    	})
+        })
     });
     app.post('/post', checkLogin, function (req, res, next) {
         var imgPath = path.dirname(__dirname) + '/public/images';
@@ -125,7 +138,7 @@ module.exports = function(app) {
             // 校验参数
             try {
                 if (!title.length) {
-                    throw new Error ('请填写标题')
+                    throw new Error('请填写标题')
                 }
                 if (!article.length) {
                     throw new Error('请填写内容');
@@ -151,6 +164,54 @@ module.exports = function(app) {
                 console.log('文章录入成功');
                 req.flash('success', '文章录入成功');
                 res.redirect('/');
+            })
+        })
+    })
+
+    // 展示文章
+    app.get('detail',function (req, res, next) {
+        var id = req.query.id;
+        if (id && id !='') {
+            Post.update({"_id":id},{$inc:{"pv":1}},function(err){
+                if (err) {
+                    console.log(err);
+                    return res.redirect("back");
+                }
+                console.log("浏览数量+1");
+            });
+
+            Post.findById(id, function(err, data) {
+                if (err) {
+                    console.log(err);
+                    req.flash('error', '查看文章详细信息出错');
+                    return res.redirect('/');
+                }
+                res.render('detail', {
+                    title:'文章展示',
+                    user: req.session.user,
+                    success: req.flash('success').toString(),
+                    post:data,
+                    img:path.dirname(__dirname) + '/pulic/images' + data.postImg
+                })
+            })
+        }
+    })
+
+    // 编辑文章
+    app.get('/edit/:author/:title',checkLogin,function(req, res) {
+        var id = req.query.id;
+        Post.findById(id, function (err, data) {
+            // console.log(data);
+            if (err) {
+                req.flash('error', err);
+                return res.redirect('back');
+            }
+            res.render('edit', {
+                title: '编辑',
+                post:data,
+                user:req.session.user,
+                success: req.flash('success').toString(),
+                error: req.flash('error').toString()
             })
         })
     })

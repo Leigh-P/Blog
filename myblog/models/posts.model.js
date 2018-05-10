@@ -1,9 +1,8 @@
-import { stringify } from 'querystring';
-
+var stringify =  require('query-string');
 var mongoose = require('mongoose');
 var config = require('./../config/config');
 mongoose.connect(config.mongodb);
-var PostSchema = new mongoose.Schema({
+var UserSchema = new mongoose.Schema({
     title: String,
     author: String,
     article: String,
