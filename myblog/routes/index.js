@@ -4,6 +4,7 @@ var mongoose = require('mongoose');
 var User = require('./../models/user.model');
 var moment = require('moment');
 var formidable = require('formidable');
+var markdown = require('markdown-to-html');
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
@@ -214,6 +215,46 @@ module.exports = function (app) {
                 error: req.flash('error').toString()
             })
         })
+    })
+    app.post('/edit/:author/:title', checkLogin, function(req, res, next) {
+        var post = {
+            id: req.body.id,
+            author: req.session.user,
+            title: req.body.title,
+            article: req.body.article
+        };
+        
+        console.log(post);
+
+        // markdown 转格式文章
+        post.article = markdown.toHTML(post.article);
+
+        Post.update({"_id": post.id},{$set: {title: post.title, article: post.article}}, function (err) {
+            if (err) {
+                console.log(err);
+                return;
+            }
+            console.log("更新成功");
+            res.redirect('/');
+        })
+
+    })
+
+    // 删除文件
+    app.get('/delete',checkLogin, function(req, res) {
+        var id = req.query.id;
+        console.log(id);
+        if (id && id != '') {
+            Post.findByIdAndRemove (id, function (err) {
+                if (err) {
+                    console.log(err);
+                    req.flash('success','删除文章失败');
+                    return req.redirect('/')
+                }
+                req.flash('success','删除文章成功');
+                res.redirect('/');
+            })
+        }
     })
 
     // 退出登录
